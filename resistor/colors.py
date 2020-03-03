@@ -13,6 +13,12 @@ def esc24(r,g,b):
     r, g, b = str(r), str(g), str(b)
     return f"\033[38;2;{r};{g};{b}m"
 
+def esc24x(hex):
+    r = str((hex >> 16) & 0xff)
+    g = str((hex >>  8) & 0xff)
+    b = str((hex >>  0) & 0xff)
+    return esc24(r,g,b)
+
 # resistorColors =
 #     BLACK,  (k)  blk
 #     BROWN,  (Br) brn
