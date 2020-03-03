@@ -13,14 +13,6 @@ TODO:
   * iterated parallelization
 """
 
-colorTemplate = (
-    "   /-----------\   " +
-    "  |             |  " +
-    "--|             |--" +
-    "  |             |  " +
-    "   \-----------/   " +
-)
-
 from .schematic import Schematic
 from .const import SERIES, PARALLEL
 

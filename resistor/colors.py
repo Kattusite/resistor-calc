@@ -55,22 +55,18 @@ colorTemplate = [
 BLOCK = "▌"
 
 class Colors:
-    BLACK    = esc(30)
-    BROWN    = esc(31)
-    GREEN    = esc(32)
-    ORANGE   = esc(33)  #"bright yellow"
-    BLUE     = esc(34)
-    PURPLE   = esc(35)
-    TEAL     = esc(36)
-    LT_GRAY  = esc(37)
-    DK_GRAY  = esc(90)
-    RED      = esc(91)
-    LIME     = esc(92)
-    YELLOW   = esc(93)
-    LT_BLUE  = esc(94)
-    VIOLET   = esc(95) # magenta
-    CYAN     = esc(96)
-    WHITE    = esc(97)
+    BLACK  = esc24x(0x000000)
+    BROWN  = esc24x(0x663232)
+    RED    = esc24x(0xff0000)
+    ORANGE = esc24x(0xff6600)
+    YELLOW = esc24x(0xffff00)
+    GREEN  = esc24x(0x34cd32)
+    BLUE   = esc24x(0x6666ff)
+    VIOLET = esc24x(0xcd66ff)
+    GREY   = esc24x(0x939393)
+    WHITE  = esc24x(0xffffff)
+    GOLD   = esc24x(0xcd9932)
+    SILVER = esc24x(0xcac9c9)
 
     ENDC = esc(0)
 
@@ -114,9 +110,9 @@ class Colors:
             print()
 
 def main():
-    Colors.colorprint(Colors.RED, "hello in red")
+    Colors.colorprint(Colors.RED,   "hello in red")
     Colors.colorprint(Colors.WHITE, "hello in white")
-    Colors.colorprint(Colors.BLUE, "hello in blue")
+    Colors.colorprint(Colors.BLUE,  "hello in blue")
 
     cs = [Colors.YELLOW, Colors.VIOLET, Colors.BLACK, Colors.ORANGE, Colors.BROWN]
     Colors.fillColorTemplate(cs)
