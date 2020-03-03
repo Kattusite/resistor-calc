@@ -14,6 +14,9 @@ def test_parallel(ohmsA, ohmsB):
     b = Resistor(ohmsB)
     print(f"{str(a):{width}} | {str(b):{width}} = {a|b}")
 
+def test_schematic(r):
+    print(r.schematic(),"\n")
+
 def main():
 
     print("====== Testing string formatting ======")
@@ -36,29 +39,44 @@ def main():
 
     print("\n====== Testing resistor schematics ======")
     a = Resistor(100)
-    print(a.schematic(),"\n")
     b = Resistor(10)
-    print(b.schematic(),"\n")
+
+    test_schematic(a)
+    test_schematic(b)
+
     c = a + b
-    print(c.schematic(),"\n")
+    test_schematic(c)
     d = a | b
-    print(d.schematic(),"\n")
-    # e = c | c
-    # print(e.schematic(),"\n")
-    # f = c | a
-    # print(f.schematic(),"\n")
+    test_schematic(d)
+    e = c | c
+    test_schematic(e)
+    f = c | a
+    test_schematic(f)
+    g = a + a + a + a
+    test_schematic(g)
+    h = a | a | a | a
+    test_schematic(h)
+    i = h | h
+    test_schematic(i)
+    j = a + d
+    test_schematic(j)
+    k = d + a
+    test_schematic(k)
+    l = j|k
+    test_schematic(l)
+
 
     print("\n====== Testing ancestry ======")
     bb = b + b
     print(bb.history)
-    g = b + b + b
-    print(g.history)
-    h = a | a | a
-    print(h.history)
-    i = h + h
-    print(i.history)
-    j = g | g
-    print(j.history)
+    c = b + b + b
+    print(c.history)
+    d = a | a | a
+    print(d.history)
+    e = c + c
+    print(e.history)
+    f = d | d
+    print(f.history)
 
 
 if __name__ == '__main__':

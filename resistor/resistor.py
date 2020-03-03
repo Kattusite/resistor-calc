@@ -4,6 +4,8 @@ ways to compose and work with electrical resistors.
 TODO:
   * Resistor color code handling / representation
   * ASCII Schematic of internal structure of composite resistors
+  * define a * operator for iterated addition and some other operator for
+  * iterated parallelization
 """
 
 from .schematic import Schematic

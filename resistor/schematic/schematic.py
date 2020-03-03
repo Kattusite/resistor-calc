@@ -36,6 +36,8 @@ class Schematic:
 
     def __init__(self, resistor):
 
+        self.resistor = resistor
+
         op = "" if not resistor.history else resistor.history["operation"]
         parents = () if not resistor.history else resistor.history["parents"]
 
@@ -75,9 +77,7 @@ class Schematic:
                 self.buf.set(midX - schem.buf.midX, y, schem.buf)
                 y += schem.buf.h + 1
 
-            # TODO
             # Draw the vertical wires connecting the parallel tracks
-            #    (maybe this would be better off happening earlier)
             topY = parentSchematics[0].buf.midY
             botY = (self.buf.h - 1) - parentSchematics[-1].buf.midY
             midY = self.buf.midY
@@ -86,6 +86,8 @@ class Schematic:
             right = self.buf.w - 2
             self.buf.line(left, topY, left, botY)
             self.buf.line(right, topY, right, botY)
+
+            # Draw the far left input and far right output wires
             self.buf.set(left-1, midY, "--")
             self.buf.set(right, midY, "--")
 
@@ -115,7 +117,8 @@ class Schematic:
             # place children into buffer one at a time, centering them vertically
             x = 1
             for schem in parentSchematics:
-                self.buf.set(x, schem.buf.midY, schem.buf)
+                midY = self.buf.midY - schem.buf.midY
+                self.buf.set(x, midY, schem.buf)
                 x += schem.buf.w + 1
 
         # add in fancy line connections
