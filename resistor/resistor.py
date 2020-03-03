@@ -74,7 +74,7 @@ class Resistor():
         depth = max(self.depth, other.depth)
         r = Resistor(ohms, tol, count, depth)
         r.history = {
-            "parents": (self, other),
+            "parents": (self, other), # NOTE: If one/both of our parents was parallel we can condense tree structure
             "operation": PARALLEL
         }
         return r
@@ -110,12 +110,26 @@ class Resistor():
     ########################################################################
 
     def shortOhms(self):
-        """Return a human-readable shortened form of the number of ohms"""
-        suffixes = {"T": 10**12, "G": 10**9, "M": 10**6, "K": 10**3}
+        """Return a human-readable shortened form of the number of ohms.
+
+        Format:
+          * > 999e24:  X.XXE+XX
+          * > 1e3:     XM
+                       X.XXM
+                       XX.XXM
+                       XXX.XM
+          * >= 0:      X
+                       X.XX
+         Note: max width is 6 characters for reasonable resistances
+        """
+        suffixes = {
+            "Y": 10**24, "Z": 10**21, "E": 10**18, "P": 10**15,
+            "T": 10**12, "G": 10**9,  "M": 10**6,  "K": 10**3
+        }
         ohms = self.ohms
 
-        # > 999T ohm
-        if ohms > 1e15:
+        # > 999Y ohm
+        if ohms > 999 * suffixes["Y"]:
             return "%.2E" % ohms
 
         # 1K ohms to 999T ohms
@@ -125,11 +139,15 @@ class Resistor():
                 # Whole numbers don't need fractional parts
                 if num == round(num):
                     return f"{round(num)}{suffix}"
+                elif num >= 100:
+                    return f"{num:.1f}{suffix}"
                 else:
-                    return f"{num:.1}{suffix}"
+                    return f"{num:.2f}{suffix}"
 
         # < 1K ohms
-        return f"{ohms}"
+        if ohms == round(ohms):
+            return f"{round(ohms)}"
+        return f"{ohms:.2f}"
 
     def isPrimitive(self):
         """Return True iff this resistor is a primitive resistor"""
@@ -141,4 +159,20 @@ class Resistor():
 
     def schematic(self):
         """Return an ASCII schematic of this resistor's internal components"""
-        return NotImplemented
+        # TODO: Wildly buggy. Should treat as 2d arrays of chars getting stitched
+        # together, not as strings.
+
+        # Base case:
+        if self.history is None:
+            # BUG: Should be a fixed-width block. must pad w/ whitespace
+            return f"--({self.shortOhms()}Ω)--"
+
+        if self.history["operation"] == SERIES:
+            L = self.history["parents"][0].schematic()
+            R = self.history["parents"][1].schematic()
+            return f"{L}{R}"
+
+        else: # if self.history["operation"] == PARALLEL
+            L = self.history["parents"][0].schematic()
+            R = self.history["parents"][1].schematic()
+            return f" +{L}+\n-+       +-\n +{R}+\n"
