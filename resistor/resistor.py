@@ -13,6 +13,14 @@ TODO:
   * iterated parallelization
 """
 
+colorTemplate = (
+    "   /-----------\   " +
+    "  |             |  " +
+    "--|             |--" +
+    "  |             |  " +
+    "   \-----------/   " +
+)
+
 from .schematic import Schematic
 from .const import SERIES, PARALLEL
 
@@ -167,6 +175,7 @@ class Resistor():
     def colorCode(self):
         """Return a string representation of the the equivalent color code of
         this resistor."""
+
         return NotImplemented
 
     def __str__(self):
