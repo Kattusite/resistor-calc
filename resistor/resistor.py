@@ -6,8 +6,8 @@ TODO:
   * ASCII Schematic of internal structure of composite resistors
 """
 
-SERIES = "series"
-PARALLEL = "parallel"
+from .schematic import Schematic
+from .const import SERIES, PARALLEL
 
 class Resistor():
     """Resistor represents a resistor (either  a primitive or composite of primitives).
@@ -197,20 +197,4 @@ class Resistor():
 
     def schematic(self):
         """Return an ASCII schematic of this resistor's internal components"""
-        # TODO: Wildly buggy. Should treat as 2d arrays of chars getting stitched
-        # together, not as strings.
-
-        # Base case:
-        if self.history is None:
-            # BUG: Should be a fixed-width block. must pad w/ whitespace
-            return f"--({self.shortOhms()}Ω)--"
-
-        if self.history["operation"] == SERIES:
-            L = self.history["parents"][0].schematic()
-            R = self.history["parents"][1].schematic()
-            return f"{L}{R}"
-
-        else: # if self.history["operation"] == PARALLEL
-            L = self.history["parents"][0].schematic()
-            R = self.history["parents"][1].schematic()
-            return f" +{L}+\n-+       +-\n +{R}+\n"
+        return str(Schematic(self))

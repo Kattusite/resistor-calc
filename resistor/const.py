@@ -1,0 +1,2 @@
+SERIES = "series"
+PARALLEL = "parallel"

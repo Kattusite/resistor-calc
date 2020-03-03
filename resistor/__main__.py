@@ -43,10 +43,10 @@ def main():
     print(c.schematic(),"\n")
     d = a | b
     print(d.schematic(),"\n")
-    e = c | c
-    print(e.schematic(),"\n")
-    f = c | a
-    print(f.schematic(),"\n")
+    # e = c | c
+    # print(e.schematic(),"\n")
+    # f = c | a
+    # print(f.schematic(),"\n")
 
     print("\n====== Testing ancestry ======")
     bb = b + b
