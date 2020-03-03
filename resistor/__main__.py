@@ -48,6 +48,18 @@ def main():
     f = c | a
     print(f.schematic(),"\n")
 
+    print("\n====== Testing ancestry ======")
+    bb = b + b
+    print(bb.history)
+    g = b + b + b
+    print(g.history)
+    h = a | a | a
+    print(h.history)
+    i = h + h
+    print(i.history)
+    j = g | g
+    print(j.history)
+
 
 if __name__ == '__main__':
     main()

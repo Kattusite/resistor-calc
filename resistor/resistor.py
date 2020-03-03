@@ -48,39 +48,62 @@ class Resistor():
 
         self.history = None
 
-    def __len__(self):
-        return self.count
+    def merge(self, other, op):
+        """A helper function for series/parallel. This helper does all of the
+        things common to both operations in a centralized place. """
+        # WARNING: Tolerance propagation is not yet supported - this is naive!
+        tol = max(self.tolerance, other.tolerance)
+        count = self.count + other.count
+        r = Resistor(0, tol, count)
+
+        parents = []
+        # if our parents were same type as us, we can just add a new entry to the list
+        if self.history and self.history["operation"] == op:
+            parents += list(self.history["parents"])
+        else:
+            parents.append(self)
+
+        if other.history and other.history["operation"] == op:
+            parents += list(other.history["parents"])
+        else:
+            parents.append(other)
+
+        r.history = {
+            "parents": tuple(parents),
+            "operation": op
+        }
+
+        return r
+
+    def series(self, other):
+        """Create a new composite resistor by placing this resistor in series with other"""
+        r = self.merge(other, SERIES)
+        r.ohms = self.ohms + other.ohms
+        r.depth = self.depth + other.depth
+        return r
+
+    def parallel(self, other):
+        """Create a new composite resistor by placing this resistor in parallel with other"""
+        r = self.merge(other, PARALLEL)
+        r.ohms = 0
+        if self.ohms != 0 and other.ohms != 0:
+            r.ohms = 1 / ((1/self.ohms) + (1/other.ohms))
+        r.depth = max(self.depth, other.depth)
+        return r
 
     def __add__(self, other):
         """Create a new composite resistor by placing this resistor in series with other"""
-        ohms = self.ohms + other.ohms
-        tol  = max(self.tolerance, other.tolerance)
-        count = self.count + other.count
-        depth = self.depth + other.depth
-        r = Resistor(ohms, tol, count, depth)
-        r.history = {
-            "parents": (self, other),
-            "operation": SERIES
-        }
-        return r
+        return self.series(other)
 
     def __or__(self, other):
         """Create a new composite resistor by placing this resistor in parallel with other"""
-        ohms = 0
-        if self.ohms != 0 and other.ohms != 0:
-            ohms = 1 / ((1/self.ohms) + (1/other.ohms))
-        tol  = max(self.tolerance, other.tolerance)
-        count = self.count + other.count
-        depth = max(self.depth, other.depth)
-        r = Resistor(ohms, tol, count, depth)
-        r.history = {
-            "parents": (self, other), # NOTE: If one/both of our parents was parallel we can condense tree structure
-            "operation": PARALLEL
-        }
-        return r
+        return self.parallel(other)
 
 
     # -------------- Comparisons -----------------
+    def __len__(self):
+        return self.count
+
     def __lt__(self, other):
         return self.ohms < other.ohms
 
@@ -99,11 +122,26 @@ class Resistor():
         return hash( (self.ohms, self.tolerance, self.count, self.depth) )
 
     # -------------- Strings ---------------------
+    def algebraic(self):
+        """Return an algebraic string representation of this resistor, e.g.
+        (100Ω + 10Ω) | (20Ω + 20Ω)"""
+
+        if not self.history:
+            return f"{self.shortOhms()}Ω"
+
+        sym = {PARALLEL: " | ", SERIES: " + "}
+        pcs = [p.algebraic() for p in self.history["parents"]]
+        op = self.history["operation"]
+        return f"({sym[op].join(pcs)})"
+
     def __str__(self):
         return f"<{self.shortOhms()}Ω ±{self.tolerance}%>"
 
     def __repr__(self):
-        return f"{{ohms: {self.shortOhms()}, tolerance: {self.tolerance}, count: {self.count}, depth: {self.depth}}}"
+        # TODO: Revise this to be of the form ((100Ω + 10Ω) | (20Ω + 10Ω)) = <XXΩ:n5:d3>
+        return f"{self.algebraic()} = <{self.shortOhms()}Ω:n{self.count}:d{self.depth}>"
+
+        # return f"{{ohms: {self.shortOhms()}, tolerance: {self.tolerance}, count: {self.count}, depth: {self.depth}}}"
 
     ########################################################################
     #                         Other methods
