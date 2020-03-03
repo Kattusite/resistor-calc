@@ -15,7 +15,7 @@ def test_parallel(ohmsA, ohmsB):
     print(f"{str(a):{width}} | {str(b):{width}} = {a|b}")
 
 def test_schematic(r):
-    print(r.schematic(),"\n")
+    print(r.schematic(showEquivalent=True),"\n")
 
 def main():
 

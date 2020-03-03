@@ -32,11 +32,13 @@ class Schematic:
     # 2) connect schematics in series
     # 3) connect schematics in parallel
 
-    # Also need some general helpers for 2d char arrays
-
-    def __init__(self, resistor):
+    def __init__(self, resistor, showEquivalent=False):
+        """Create a new Schematic of the provided resistor.
+        If showEquivalent is True, also include a schematic of the simplified
+        equivalent resistor."""
 
         self.resistor = resistor
+        self.showEquivalent = showEquivalent
 
         op = "" if not resistor.history else resistor.history["operation"]
         parents = () if not resistor.history else resistor.history["parents"]
@@ -124,9 +126,19 @@ class Schematic:
         # add in fancy line connections
         self.buf.connectLines(fancy=True)
 
+        # Create a second buffer to store equivalence information
+        self.buf2 = Buffer.fromString(f" == {self.resistor.primitive()}")
+        self.buf2.connectLines(fancy=True)
+
+        self.combined = self.buf + self.buf2
+
+    def toString(self, showEquivalent=False):
+        if showEquivalent:
+            return str(self.combined)
+        return str(self.buf)
 
     def __str__(self):
-        return str(self.buf)
+        return self.toString(self.showEquivalent)
 
     def __repr__(self):
         return str(self)

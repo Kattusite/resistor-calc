@@ -1,6 +1,11 @@
 """resistor.py defines the Resistor class, which defines a collection of useful
 ways to compose and work with electrical resistors.
 
+Terminology:
+  * A "primitive" resistor is one consisting of just a single physical component
+  * A "composite" or "complex" resistor consists of several smaller components,
+    primitive or composite, arranged in series and/or parallel.
+
 TODO:
   * Resistor color code handling / representation
   * ASCII Schematic of internal structure of composite resistors
@@ -136,12 +141,40 @@ class Resistor():
         op = self.history["operation"]
         return f"({sym[op].join(pcs)})"
 
+    def resistance(self):
+        """Return a succinct string representing the equivalent resistance of
+        this resistor, e.g. '23.6KΩ'
+        """
+        return f"{self.shortOhms()}Ω"
+
+    def primitive(self):
+        """Return a string representation of this resistor as if it were a
+        single primitive resistor, e.g. '-(23.6KΩ)-'
+        """
+        return f"-({self.resistance()})-"
+
+    def summary(self):
+        """Return a succinct string summarizing this resistor's key properties,
+        e.g. '<23.6KΩ:n5:d1>'
+        """
+        return f"<{self.resistance()}:n{self.count}:d{self.depth}>"
+
+    def schematic(self, showEquivalent=False):
+        """Return a string representation of this resistor's internal structure
+        as a text-based circuit diagram. """
+        return str(Schematic(self, showEquivalent))
+
+    def colorCode(self):
+        """Return a string representation of the the equivalent color code of
+        this resistor."""
+        return NotImplemented
+
     def __str__(self):
-        return f"<{self.shortOhms()}Ω ±{self.tolerance}%>"
+        return f"<{self.resistance()} ±{self.tolerance}%>"
 
     def __repr__(self):
         # TODO: Revise this to be of the form ((100Ω + 10Ω) | (20Ω + 10Ω)) = <XXΩ:n5:d3>
-        return f"{self.algebraic()} = <{self.shortOhms()}Ω:n{self.count}:d{self.depth}>"
+        return f"{self.algebraic()} = {self.summary()}"
 
         # return f"{{ohms: {self.shortOhms()}, tolerance: {self.tolerance}, count: {self.count}, depth: {self.depth}}}"
 
@@ -192,11 +225,3 @@ class Resistor():
     def isPrimitive(self):
         """Return True iff this resistor is a primitive resistor"""
         return self.count == 1
-
-    def colorCode(self):
-        """Return the equivalent color code of this resistor."""
-        return NotImplemented
-
-    def schematic(self):
-        """Return an ASCII schematic of this resistor's internal components"""
-        return str(Schematic(self))

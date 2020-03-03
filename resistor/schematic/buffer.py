@@ -1,10 +1,10 @@
 from .neighbors import Neighbors, lineChars
 
 class Buffer:
-    """A 2D array of characters"""
+    """Buffer defines a 2D array of characters to be used to create text-based
+    circuit schematics, and a variety of related helper functions."""
 
     def __init__(self, w, h):
-        # TODO: Add a constructor to make Buffers from a 1d/2d string
         self.w = w
         self.h = h
         self.midX = self.w // 2
@@ -29,6 +29,28 @@ class Buffer:
 
     def __repr__(self):
         return self.__str__()
+
+    def __add__(self, other):
+        return self.concat(other)
+
+    def concat(self, other, center=True):
+        """Concatenate self and other horizontally, returning a new, wider buffer.
+        The height is the max of the input heights. If center is True,
+        the buffers will be vertically centered. Otherwise, they will be top-aligned."""
+
+        newW = self.w + other.w
+        newH = max(self.h, other.h)
+        buf = Buffer(newW, newH)
+
+        y1, y2 = 0,0
+        if center:
+            y1 = buf.midY - self.midY
+            y2 = buf.midY - other.midY
+
+        buf.set(0, y1, self)
+        buf.set(self.w, y2, other)
+
+        return buf
 
     def display(self):
         print(str(self))

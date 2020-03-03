@@ -11,7 +11,12 @@ lineChars = (
 
 fancyLookup = {
     "lrab": "", # order of the directions
-    "0000": " ",
+
+    # 0 wires
+    # This is a weird case but it does occur sometimes when concatting
+    # buffers, e.g. "-(24.2Ω)-" + " == -(24.2Ω)-" needs to become
+    #  "─(24.2Ω)─ == ─(24.2Ω)─"
+    "0000": "─",
     # 1 wire only
     # ordinarily these would be terminals, but they render poorly
     # so we use full length standard lines instead.
