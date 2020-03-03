@@ -1,7 +1,17 @@
+# Experimental - not really well designed or organized yet
+
 
 def esc(s):
     s = str(s)
     return f"\033[{s}m"
+
+def esc8(s):
+    s = str(s)
+    return f"\033[38;5;{s}m"
+
+def esc24(r,g,b):
+    r, g, b = str(r), str(g), str(b)
+    return f"\033[38;2;{r};{g};{b}m"
 
 # resistorColors =
 #     BLACK,  (k)  blk
@@ -73,6 +83,9 @@ class Colors:
     def fillColorTemplate(colors):
         """Fill in the color template with the provided array of colors.
         colors must be len 4 or 5."""
+        # TODO: Currently only works for 5 colors, not 4.
+        # TODO: The colors don't show up great in the terminal.
+        #       - maybe try using 8bit/24bit colors?
 
         if len(colors) not in (4,5):
             raise ValueError("Wrong number of colors provided as inputs")
@@ -101,6 +114,12 @@ def main():
 
     cs = [Colors.YELLOW, Colors.VIOLET, Colors.BLACK, Colors.ORANGE, Colors.BROWN]
     Colors.fillColorTemplate(cs)
+
+    Colors.colorprint(esc8(227), "hello in yellow")
+    Colors.colorprint(esc8(190), "hello in lt grn")
+    Colors.colorprint(esc8(252), "hello it lt grey")
+
+    Colors.colorprint(esc24(0xb3,0x66,0xff), "hello in lavender")
 
 
 if __name__ == '__main__':
