@@ -5,10 +5,7 @@ from timing import Timing
 from .toolkit import Toolkit
 from .toolkit_timing import brute_force
 
-from .sorted_list import SortedList
-from .simple_sorted_list import SortedList as SimpleSortedList
-from .sorted_array import SortedArray
-from .usually_sorted_array import UsuallySortedArray
+from mycontainers import * # SortedList, SortedArray, etc.
 
 rs = [
     2200, 4700, 10_000, 22_000, 47_000,

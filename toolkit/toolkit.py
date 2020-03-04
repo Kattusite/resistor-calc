@@ -35,7 +35,7 @@ import bisect
 from collections import defaultdict
 
 from resistor import Resistor
-from .sorted_list import SortedList # a wrapper for sortedcontainers.SortedList
+from mycontainers import SortedList # a wrapper for sortedcontainers.SortedList
 
 def withinTolerance(ohms, tol, resistor):
     """Returns True if resistor.ohms is in the range
