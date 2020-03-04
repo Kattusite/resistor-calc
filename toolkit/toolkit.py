@@ -17,10 +17,6 @@ need to look at the 10, 20, 100 ohm resistors.
 # TODO: Implement some fun dynamic programming-ish solution
 # or some heuristic to more efficiently get close to a target resistance
 
-# TODO: Implement a "culling" feature so that each level of the toolkit is spread
-# out evenly. We don't need a 149.8, 149.9, 150, and 150.1 kO resistor --
-# just one will do
-
 # TODO: Use resizing array so we don't have to suffer linear time insertion
 #   UPDATE: my bad. inserting into a sorted list will be linear no matter what.
 #   (although the resizing array makes the avg/best case better)
@@ -39,6 +35,7 @@ import bisect
 from collections import defaultdict
 
 from resistor import Resistor
+from .sorted_array import SortedArray
 
 def withinTolerance(ohms, tol, resistor):
     """Returns True if resistor.ohms is in the range
@@ -70,31 +67,31 @@ class Toolkit:
         create a Toolkit"""
 
         resistances = sorted(rs)
-        self.resistors = defaultdict(lambda : [])
-        self.resistors[1] = [Resistor(r) for r in resistances]
+        self.resistors = defaultdict(lambda : SortedArray())
+        for r in resistances:
+            self.resistors[0].append(Resistor(r))
+            self.resistors[1].append(Resistor(r))
         self.max_size = 1
 
     def __contains__(self, resistor):
         if resistor.count not in self.resistors:
             return False
 
-        # Binary search the list of resistors with resistor.count components
-        a = self.resistors[resistor.count]
-        i = bisect.bisect_left(a, resistor)
+        return resistor in self.resistors[resistor.count]
 
-        # If a match was found, resistor is in this toolkit
-        return i != len(a) and a[i] == resistor
 
     def fuzzy_contains(self, resistor, tol=0.01):
         """Return true if self.resistors contains a resistor within a tol*ohms
         sized window around the given resistance."""
         tgt = resistor.ohms
-        for n, rs in self.resistors.items():
-            a = self.resistors[n]
-            i = bisect.bisect_left(a, resistor)
+        for n, a in self.resistors.items():
+            above = a.find_ge(resistor)
+            if above and withinTolerance(resistor.ohms, tol, above):
+                return True
 
-            if i != len(a) and withinTolerance(resistor.ohms, tol, a[i]):
             # TODO: Is it necessary to check both above and below or just one?
+            below = a.find_le(resistor)
+            if below and withinTolerance(resistor.ohms, tol, below):
                 return True
 
         return False
@@ -117,34 +114,9 @@ class Toolkit:
 
         # Insert this resistor in sorted order
         # (WARNING: list inserts are slow, optimize later if needed)
-        sz = resistor.count
-        bisect.insort_left(self.resistors[sz], resistor)
-
-    def find_le(self, k, ohms):
-        """Return the rightmost resistor of exactly k primitives less than or
-        equal to an equivalent resistance of ohms, or None if no such one exists.
-        """
-        if k not in self.resistors:
-            return None
-        x = Resistor(ohms)
-        a = self.resistors[k]
-        i = bisect.bisect_right(a,x)
-        if i:
-            return a[i-1]
-        return None
-
-    def find_ge(self, k, ohms):
-        """Return the leftmost resistor of exactly k primitives greater than or
-        equal to an equivalent resistance of ohms, or None if no such one exists.
-        """
-        if k not in self.resistors:
-            return None
-        x = Resistor(ohms)
-        a = self.resistors[k]
-        i = bisect.bisect_left(a,x)
-        if i != len(a):
-            return a[i]
-        return None
+        n = resistor.count
+        # self.resistors[0].append(resistor)
+        self.resistors[n].append(resistor)
 
     #########################################################################
     #                    Methods
@@ -187,8 +159,10 @@ class Toolkit:
         cap = max(self.max_size, k) + 1
         for i in range(1, cap):
             # Find the closest resistors above and below.
-            under = self.find_le(i, ohms)
-            over  = self.find_ge(i, ohms)
+            rs = self.resistors[i]
+            r = Resistor(ohms)
+            under = rs.find_le(r)
+            over  = rs.find_ge(r)
             if over == under:
                 over = None     # avoid duplicates
 
