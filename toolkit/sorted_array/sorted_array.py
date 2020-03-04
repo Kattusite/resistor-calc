@@ -19,23 +19,7 @@ class SortedArray(MutableSequence):
         return self.size
 
     def __iter__(self):
-
-        class SortedArrayIter:
-            def __init__(self, sa):
-                self.i = 0
-                self.sa = sa
-
-            def __iter__(self):
-                return self
-
-            def __next__(self):
-                if self.i >= self.sa.size:
-                    raise StopIteration()
-                x = self.sa[self.i]
-                self.i += 1
-                return x
-
-        return SortedArrayIter(self)
+        return self.a[:len(self)].__iter__()
 
     def __str__(self):
         return f"[{', '.join([str(x) for x in self])}]"
