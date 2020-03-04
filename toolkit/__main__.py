@@ -1,5 +1,5 @@
 from .toolkit import Toolkit
-import time
+import cProfile, time
 
 rs = [
     2200, 4700, 10_000, 22_000, 47_000,
@@ -33,15 +33,18 @@ def main():
 
     brute = 4
 
-    tk.brute_force(brute)
-    test_closest(tk, 150_000, k=10, n=brute)
-    test_closest(tk, 82_000, k=10, n=brute)
+    tk.brute_force(3)
+    cProfile.runctx('tk.brute_force(4)', {"tk": tk}, {})
 
-    tk.displayInventory(n=0)
-
-    tk2 = Toolkit(rs)
-    tk2.brute_force(8, pruneTolerance=0.001)
-    tk2.displayInventory(n=0)
+    # tk.brute_force(brute)
+    # test_closest(tk, 150_000, k=10, n=brute)
+    # test_closest(tk, 82_000, k=10, n=brute)
+    #
+    # tk.displayInventory(n=0)
+    #
+    # tk2 = Toolkit(rs)
+    # tk2.brute_force(8, pruneTolerance=0.001)
+    # tk2.displayInventory(n=0)
 
     #timing_test()
     # n=6 takes > 6min
