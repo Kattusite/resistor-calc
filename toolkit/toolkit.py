@@ -89,8 +89,7 @@ class Toolkit:
         """Return true if self.resistors contains a resistor within a tol*ohms
         sized window around the given resistance."""
         tgt = resistor.ohms
-        for n, rs in self.resistors.items():
-            a = self.resistors[n]
+        for _, a in self.resistors.items():
             i = bisect.bisect_left(a, resistor)
 
             if i != len(a) and withinTolerance(resistor.ohms, tol, a[i]):
