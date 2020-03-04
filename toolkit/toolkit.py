@@ -36,6 +36,8 @@ from collections import defaultdict
 
 from resistor import Resistor
 from .sorted_array import SortedArray
+from .usually_sorted_array import UsuallySortedArray
+from sortedcontainers import SortedList
 
 def withinTolerance(ohms, tol, resistor):
     """Returns True if resistor.ohms is in the range
@@ -65,12 +67,13 @@ class Toolkit:
     def __init__(self, rs):
         """Given rs, a list of the ohm values of the available resistances,
         create a Toolkit"""
+        Container = SortedList
 
         resistances = sorted(rs)
-        self.resistors = defaultdict(lambda : SortedArray())
+        self.resistors = defaultdict(lambda : Container())
         for r in resistances:
-            self.resistors[0].append(Resistor(r))
-            self.resistors[1].append(Resistor(r))
+            self.resistors[0].add(Resistor(r))
+            self.resistors[1].add(Resistor(r))
         self.max_size = 1
 
     def __contains__(self, resistor):
@@ -116,7 +119,7 @@ class Toolkit:
         # (WARNING: list inserts are slow, optimize later if needed)
         n = resistor.count
         # self.resistors[0].append(resistor)
-        self.resistors[n].append(resistor)
+        self.resistors[n].add(resistor)
 
     #########################################################################
     #                    Methods
