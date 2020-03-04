@@ -22,10 +22,18 @@ need to look at the 10, 20, 100 ohm resistors.
 # just one will do
 
 # TODO: Use resizing array so we don't have to suffer linear time insertion
+#   UPDATE: my bad. inserting into a sorted list will be linear no matter what.
+#   (although the resizing array makes the avg/best case better)
+#   Use a BST or similar if we really wanna get crazy
+# UPDATE: empirical tests show its actually way slower with the resizing array crap
+
+# TODO: Rewrite to use resizing array.
+#  (and do it such that if I wanna switch to a bst later it's straightforward)
 
 # TODO: Add an extra level to self.resistors (e.g. 0) to track ALL resistors known,
 # to make searching easier ==> just search the ALL list, and then insert into both
 # the ALL list and the relevant i list.
+# UPDATE: Actually this may be a bad idea as it makes inserts really slow
 
 import bisect
 from collections import defaultdict
@@ -86,6 +94,7 @@ class Toolkit:
             i = bisect.bisect_left(a, resistor)
 
             if i != len(a) and withinTolerance(resistor.ohms, tol, a[i]):
+            # TODO: Is it necessary to check both above and below or just one?
                 return True
 
         return False
