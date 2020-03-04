@@ -13,6 +13,20 @@ A better way might use heuristics to limit the number of paths that must be
 explored, similar to beam search. If we want a 200KOhm resistor, we really don't
 need to look at the 10, 20, 100 ohm resistors.
 """
+
+# TODO: Implement some fun dynamic programming-ish solution
+# or some heuristic to more efficiently get close to a target resistance
+
+# TODO: Implement a "culling" feature so that each level of the toolkit is spread
+# out evenly. We don't need a 149.8, 149.9, 150, and 150.1 kO resistor --
+# just one will do
+
+# TODO: Use resizing array so we don't have to suffer linear time insertion
+
+# TODO: Add an extra level to self.resistors (e.g. 0) to track ALL resistors known,
+# to make searching easier ==> just search the ALL list, and then insert into both
+# the ALL list and the relevant i list.
+
 import bisect
 from collections import defaultdict
 
@@ -63,18 +77,33 @@ class Toolkit:
         # If a match was found, resistor is in this toolkit
         return i != len(a) and a[i] == resistor
 
+    def fuzzy_contains(self, resistor, tol=0.01):
+        """Return true if self.resistors contains a resistor within a tol*ohms
+        sized window around the given resistance."""
+        tgt = resistor.ohms
+        for n, rs in self.resistors.items():
+            a = self.resistors[n]
+            i = bisect.bisect_left(a, resistor)
+
+            if i != len(a) and withinTolerance(resistor.ohms, tol, a[i]):
+                return True
+
+        return False
+
     #########################################################################
     #                     Helpers
     #########################################################################
 
-    def insert(self, resistor):
+    def insert(self, resistor, tol=0):
         """If the given resistor (or equivalent) is not already in the toolkit,
         add it to the appropriate list of resistors, in its proper sorted order.
         TODO: Decide whether equivalent resistors should count, or if they
         must be equal.
         """
         # Skip resistors already in the toolkit
-        if resistor in self:
+        if not tol and resistor in self:
+            return
+        elif tol and self.fuzzy_contains(resistor, tol=tol):
             return
 
         # Insert this resistor in sorted order
@@ -112,11 +141,16 @@ class Toolkit:
     #                    Methods
     #########################################################################
 
-    def brute_force(self, k=None):
+    def brute_force(self, k=None, pruneTolerance=0):
         """Expand the toolkit's known resistors by building all composite resistors
         that contain no more than k primitive resistors.
         If k is not provided, use max_size+1
-        (i.e. if we know all 2-large resistors, find all 3-large resistors)"""
+        (i.e. if we know all 2-large resistors, find all 3-large resistors).
+
+        If prune is provided, do not add a new resistor to the inventory if its
+        equivalent resistance is within prune proportion of the next closest resistor.
+        (i.e. if 0.01, don't add resistors within 1% of a known resistor)
+        """
 
         if k is None:
             k = self.max_size + 1
@@ -128,8 +162,8 @@ class Toolkit:
             for r in self.resistors[i]:
                 # Compose them with all 1-sized resistors
                 for s in self.resistors[1]:
-                    self.insert(r + s)
-                    self.insert(r | s)
+                    self.insert(r + s, tol=pruneTolerance)
+                    self.insert(r | s, tol=pruneTolerance)
 
         self.max_size = k
 
@@ -156,3 +190,16 @@ class Toolkit:
 
         candidates.sort(key=lambda r : abs(ohms - r.ohms))
         return candidates[:k]
+
+    def displayInventory(self, n=3):
+        print("====== Resistor inventory ======")
+        for i in range(1, self.max_size+1):
+            rs = self.resistors[i]
+            print(f"------ {i}x Resistor ({len(rs)} known) ------")
+            if n == 0:
+                continue
+            for j, r in enumerate(rs):
+                print(repr(r))
+                if j > n:
+                    print("...")
+                    break

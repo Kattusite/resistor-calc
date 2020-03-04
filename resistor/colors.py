@@ -1,5 +1,5 @@
 # Experimental - not really well designed or organized yet
-
+# TODO: Scrap almost the whole file and reorganize from the ground up
 
 def esc(s):
     s = str(s)
@@ -55,6 +55,8 @@ colorTemplate = [
 # BLOCK = "▋"
 BLOCK = "▌"
 
+COLOR_DEPTH = 8
+
 class Colors:
     BLACK  = esc24x(0x000000)
     BROWN  = esc24x(0x663232)
@@ -68,6 +70,36 @@ class Colors:
     WHITE  = esc24x(0xffffff)
     GOLD   = esc24x(0xcd9932)
     SILVER = esc24x(0xcac9c9)
+
+    if COLOR_DEPTH == 8:
+        BLACK = esc8(0)
+        BROWN = esc8(94)
+        RED   = esc8(9)
+        ORANGE = esc8(214)
+        YELLOW = esc8(11)
+        GREEN  = esc8(10)
+        BLUE   = esc8(12)
+        VIOLET = esc8(129)
+        GREY   = esc8(245)
+        WHITE  = esc8(15)
+        GOLD   = esc8(178)
+        SILVER = esc8(189)
+
+
+    colors = [
+        BLACK,
+        BROWN,
+        RED,
+        ORANGE,
+        YELLOW,
+        GREEN,
+        BLUE,
+        VIOLET,
+        GREY,
+        WHITE,
+        GOLD,
+        SILVER
+    ]
 
     ENDC = esc(0)
 
@@ -110,6 +142,14 @@ class Colors:
                 Colors.end()
             print()
 
+def colortest():
+    print("===== Available resistor bands =====")
+    for c in Colors.colors:
+        Colors.start(c)
+        print(BLOCK,end="")
+        Colors.end()
+
+
 def main():
     Colors.colorprint(Colors.RED,   "hello in red")
     Colors.colorprint(Colors.WHITE, "hello in white")
@@ -123,6 +163,8 @@ def main():
     Colors.colorprint(esc8(252), "hello it lt grey")
 
     Colors.colorprint(esc24(0xb3,0x66,0xff), "hello in lavender")
+
+    colortest()
 
 
 if __name__ == '__main__':
