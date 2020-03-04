@@ -1,3 +1,5 @@
+import timeit
+
 from .sorted_array import SortedArray
 
 def main():
@@ -8,6 +10,8 @@ def main():
         for j in range(10, i, -1):
             if j not in sa:
                 print(f"ERROR: Expected {j} in sa but not found!")
+
+
 
 if __name__ == '__main__':
     main()

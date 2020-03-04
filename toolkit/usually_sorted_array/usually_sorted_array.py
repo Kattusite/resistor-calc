@@ -4,8 +4,9 @@ from collections.abc import MutableSequence
 def newArray(capacity):
     return [None for i in range(capacity)]
 
-class SortedArray(MutableSequence):
-    """A data structure that represents a sorted array of elements.
+class UsuallySortedArray(MutableSequence):
+    """A data structure that represents an array of elements that is sorted
+    when it needs to be.
 
     The array resizes in batches for amortized constant time insertion."""
 
@@ -14,11 +15,14 @@ class SortedArray(MutableSequence):
         self.capacity = capacity
 
         self.a = newArray(capacity)
+        self.members = {}
+        self.sorted = True
 
     def __len__(self):
         return self.size
 
     def __iter__(self):
+        self.sortIfNeeded()
         return self.a[:len(self)].__iter__()
 
     def __str__(self):
@@ -27,39 +31,49 @@ class SortedArray(MutableSequence):
     def __repr__(self):
         return f"[{', '.join([repr(x) for x in self])}]"
 
+    def sortIfNeeded(self):
+        if self.sorted:
+            return
+        self.a[:self.size] = sorted(self.a[:self.size])
+        self.sorted = True
+
     def index(self, item):
+        self.sortIfNeeded()
         i = bisect.bisect_left(self.a,item,hi=self.size)
         if i != len(self.a) and self.a == item:
             return i
         raise ValueError
 
     def find_lt(self, item):
+        self.sortIfNeeded()
         i = bisect.bisect_left(self.a, item, hi=self.size)
         if i:
             return self.a[i-1]
         return None
 
     def find_le(self, item):
+        self.sortIfNeeded()
         i = bisect.bisect_right(self.a, item, hi=self.size)
         if i:
             return self.a[i-1]
         return None
 
     def find_gt(self, item):
+        self.sortIfNeeded()
         i = bisect.bisect_right(self.a, item, hi=self.size)
         if i != len(self.a):
             return self.a[i]
         return None
 
     def find_ge(self, item):
+        self.sortIfNeeded()
         i = bisect.bisect_left(self.a, item, hi=self.size)
         if i != len(self.a):
             return self.a[i]
         return None
 
     def __contains__(self, item):
-        i = bisect.bisect_left(self.a,item,hi=self.size)
-        return i != self.size and self.a[i] == item
+        return item in self.members
 
     def __getitem__(self, key):
         if key < 0 or key >= self.size:
@@ -97,16 +111,11 @@ class SortedArray(MutableSequence):
     def append(self, value):
         if self.size == self.capacity:
             self.expand()
+        self.members[value] = True
 
-        # One iteration of insertion sort
         self.a[self.size] = value
-        for i in range(self.size, -1, -1):
-            if i > 0 and self.a[i] < self.a[i-1]:
-                self.a[i], self.a[i-1] = self.a[i-1], self.a[i]
-            else:
-                break
-
+        self.sorted = False
         self.size += 1
 
-    def add(self,value):
+    def add(self, value):
         return self.append(value)
