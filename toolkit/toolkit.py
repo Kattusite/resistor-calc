@@ -35,8 +35,6 @@ import bisect
 from collections import defaultdict
 
 from resistor import Resistor
-from .sorted_array import SortedArray
-from .usually_sorted_array import UsuallySortedArray
 from .sorted_list import SortedList # a wrapper for sortedcontainers.SortedList
 
 def withinTolerance(ohms, tol, resistor):
@@ -64,10 +62,9 @@ class Toolkit:
     #                     Object overrides
     #########################################################################
 
-    def __init__(self, rs):
+    def __init__(self, rs, Container=SortedList):
         """Given rs, a list of the ohm values of the available resistances,
         create a Toolkit"""
-        Container = SortedList
 
         resistances = sorted(rs)
         self.resistors = defaultdict(lambda : Container())

@@ -1,6 +1,11 @@
 from .toolkit import Toolkit
 import cProfile, time
 
+from .sorted_list import SortedList
+from .simple_sorted_list import SortedList as SimpleSortedList
+from .sorted_array import SortedArray
+from .usually_sorted_array import UsuallySortedArray
+
 rs = [
     2200, 4700, 10_000, 22_000, 47_000,
     100_000, 220_000, 470_000, 1_000_000
@@ -13,13 +18,22 @@ def test_closest(tk, ohms, k=1, tolerance=0.1, n=1):
         print(f"{i+1})   {repr(r)}")
     print()
 
-  # Beginning brute_force with n= 2 ... done in   0.0010s
-  # Beginning brute_force with n= 3 ... done in   0.0144s
-  # Beginning brute_force with n= 4 ... done in   0.2419s
-  # Beginning brute_force with n= 5 ... done in   9.9347s
-  # Beginning brute_force with n= 6 ... done in 2618.6997s
-def timing_test():
-    tk = Toolkit(rs)
+
+# Using SortedList:
+# Beginning brute_force with n= 2 ... done in   0.0010s
+# Beginning brute_force with n= 3 ... done in   0.0129s
+# Beginning brute_force with n= 4 ... done in   0.2463s
+# Beginning brute_force with n= 5 ... done in   4.5668s
+# Beginning brute_force with n= 6 ... done in 111.0004s
+
+# Using SimpleSortedList
+# Beginning brute_force with n= 2 ... done in   0.0010s
+# Beginning brute_force with n= 3 ... done in   0.0133s
+# Beginning brute_force with n= 4 ... done in   0.2384s
+# Beginning brute_force with n= 5 ... done in  10.0516s
+# Beginning brute_force with n= 6 ... done in~2618.6997s
+def timing_test(Container=SortedList):
+    tk = Toolkit(rs, Container=Container)
     print("====== Starting timing test ======")
     for i in range(2, 12):
         print(f"  Beginning brute_force with n={i:2} ... ", end="")
@@ -45,7 +59,7 @@ def main():
     tk2.brute_force(8, pruneTolerance=0.001)
     tk2.displayInventory(n=0)
 
-    timing_test()
+    timing_test(Container=SimpleSortedList)
     # n=6 takes > 6min
     # tk.brute_force(6)
     # test_closest(96_000,k=10,n=6)

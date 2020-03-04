@@ -55,7 +55,7 @@ class SortedList(MutableSequence):
 
     def __contains__(self, item):
         i = bisect.bisect_left(self.a,item)
-        return i != self.size and self.a[i] == item
+        return i != len(self) and self.a[i] == item
 
     def __getitem__(self, key):
         return self.a[key]
