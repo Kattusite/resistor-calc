@@ -30,23 +30,22 @@ def timing_test():
 
 def main():
     tk = Toolkit(rs)
-
     brute = 4
 
-    tk.brute_force(3)
-    cProfile.runctx('tk.brute_force(4)', {"tk": tk}, {})
+    #tk.brute_force(4)
+    #cProfile.runctx('tk.brute_force(5)', {"tk": tk}, {})
 
-    # tk.brute_force(brute)
-    # test_closest(tk, 150_000, k=10, n=brute)
-    # test_closest(tk, 82_000, k=10, n=brute)
-    #
-    # tk.displayInventory(n=0)
-    #
-    # tk2 = Toolkit(rs)
-    # tk2.brute_force(8, pruneTolerance=0.001)
-    # tk2.displayInventory(n=0)
+    tk.brute_force(brute)
+    test_closest(tk, 150_000, k=10, n=brute)
+    test_closest(tk, 82_000, k=10, n=brute)
 
-    #timing_test()
+    tk.displayInventory(n=0)
+
+    tk2 = Toolkit(rs)
+    tk2.brute_force(8, pruneTolerance=0.001)
+    tk2.displayInventory(n=0)
+
+    timing_test()
     # n=6 takes > 6min
     # tk.brute_force(6)
     # test_closest(96_000,k=10,n=6)

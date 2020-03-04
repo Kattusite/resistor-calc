@@ -37,7 +37,7 @@ from collections import defaultdict
 from resistor import Resistor
 from .sorted_array import SortedArray
 from .usually_sorted_array import UsuallySortedArray
-from sortedcontainers import SortedList
+from .sorted_list import SortedList # a wrapper for sortedcontainers.SortedList
 
 def withinTolerance(ohms, tol, resistor):
     """Returns True if resistor.ohms is in the range
