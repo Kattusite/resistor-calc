@@ -67,7 +67,7 @@ class Toolkit:
         create a Toolkit"""
 
         resistances = sorted(rs)
-        self.resistors = defaultdict(lambda : Container())
+        self.resistors = defaultdict(Container)
         for r in resistances:
             self.resistors[0].add(Resistor(r))
             self.resistors[1].add(Resistor(r))
