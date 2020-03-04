@@ -17,6 +17,7 @@ def esc24x(hex):
     r = str((hex >> 16) & 0xff)
     g = str((hex >>  8) & 0xff)
     b = str((hex >>  0) & 0xff)
+    print(r,g,b)
     return esc24(r,g,b)
 
 # resistorColors =

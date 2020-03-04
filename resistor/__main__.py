@@ -14,6 +14,16 @@ def test_parallel(ohmsA, ohmsB):
     b = Resistor(ohmsB)
     print(f"{str(a):{width}} | {str(b):{width}} = {a|b}")
 
+def test_multiseries(ohms, k):
+    a = Resistor(ohms)
+    b = a * k
+    print(f"{str(a):{width}} * {str(k):2} = {b}")
+
+def test_multiparallel(ohms, k):
+    a = Resistor(ohms)
+    b = a >> k
+    print(f"{str(a):{width}} >> {str(k):2} = {b}")
+
 def test_schematic(r):
     print(r.schematic(showEquivalent=True),"\n")
 
@@ -78,6 +88,14 @@ def main():
     f = d | d
     print(f.history)
 
+    print("\n====== Testing multiseries ======")
+    for e in range(6):
+        test_multiseries(10**e, 4)
+
+
+    print("\n====== Testing multiseries ======")
+    for e in range(6):
+        test_multiparallel(10**e, 4)
 
 if __name__ == '__main__':
     main()

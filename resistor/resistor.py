@@ -102,9 +102,35 @@ class Resistor():
         """Create a new composite resistor by placing this resistor in series with other"""
         return self.series(other)
 
+    def __rmul__(self, other):
+        """Create a new composite resistor by creating `other` copies of self, in series"""
+        return self.__mul__(other)
+
+    def __mul__(self, other):
+        """Create a new composite resistor by creating `other` copies of self, in series"""
+        if type(other) != type(0) or other <= 0:
+            return NotImplemented
+        r = self
+        for i in range(other-1):
+            r += self
+        return r
+
     def __or__(self, other):
         """Create a new composite resistor by placing this resistor in parallel with other"""
         return self.parallel(other)
+
+    def __rrshift__(self, other):
+        """Create a new composite resistor by creating `other` copies of self, in parallel"""
+        return self.__rshift__(other)
+
+    def __rshift__(self, other):
+        """Create a new composite resistor by creating `other` copies of self, in parallel"""
+        if type(other) != type(0) or other <= 0:
+            return NotImplemented
+        r = self
+        for i in range(other-1):
+            r |= self
+        return r
 
 
     # -------------- Comparisons -----------------
@@ -211,7 +237,7 @@ class Resistor():
             if ohms > magnitude:
                 num = ohms / magnitude
                 # Whole numbers don't need fractional parts
-                if num == round(num):
+                if isInteger(num):
                     return f"{round(num)}{suffix}"
                 elif num >= 100:
                     return f"{num:.1f}{suffix}"
@@ -219,10 +245,15 @@ class Resistor():
                     return f"{num:.2f}{suffix}"
 
         # < 1K ohms
-        if ohms == round(ohms):
+        if isInteger(ohms):
             return f"{round(ohms)}"
         return f"{ohms:.2f}"
 
     def isPrimitive(self):
         """Return True iff this resistor is a primitive resistor"""
         return self.count == 1
+
+def isInteger(x, tol=0.0001):
+    """Returns true if the fractional part of an integer is less than a tolerance"""
+    diff = x - round(x)
+    return abs(diff) < tol
