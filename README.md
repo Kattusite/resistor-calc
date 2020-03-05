@@ -1,5 +1,13 @@
 # resistor-calc
  Useful operations on electrical resistors
+ 
+## Dependencies
+
+[sortedcontainers](http://www.grantjenks.com/docs/sortedcontainers/)
+
+```bash
+pip install sortedcontainers
+```
 
 ## Testing
 
