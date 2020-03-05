@@ -19,27 +19,20 @@ def test_closest(tk, ohms, k=1, tolerance=0.1, n=1):
         print(f"{i+1})   {repr(r)}")
     print()
 
+def test_gap(tk, k):
+    below, mid, above = tk.biggestGap(k)
+    print(f"biggest gap using exactly {k} resistors:")
+    print(f"  ({below.resistance()} .. [[{mid.resistance()}]] .. {above.resistance()})")
+    print()
 
-# Using SortedList:
-# Beginning brute_force with n= 2 ... done in   0.0010s
-# Beginning brute_force with n= 3 ... done in   0.0129s
-# Beginning brute_force with n= 4 ... done in   0.2463s
-# Beginning brute_force with n= 5 ... done in   4.5668s
-# Beginning brute_force with n= 6 ... done in 111.0004s
-
-# Using SimpleSortedList
-# Beginning brute_force with n= 2 ... done in   0.0010s
-# Beginning brute_force with n= 3 ... done in   0.0133s
-# Beginning brute_force with n= 4 ... done in   0.2384s
-# Beginning brute_force with n= 5 ... done in  10.0516s
-# Beginning brute_force with n= 6 ... done in~2618.6997s
-
-def timing_test(Container=SortedList):
+def timing_test(Container=SortedList, t=None):
     tk = Toolkit(rs, Container=Container)
     note = f"(Using {Container.__name__} as container type)"
-    Timing.test(brute_force, tk, note=note)
+    Timing.test(brute_force, tk, note=note, t=t)
+    print()
 
-def compare_list_implementations():
+def compare_list_implementations(t=None):
+    Containers = [SortedList, SimpleSortedList, SortedArray, UsuallySortedArray]
     #   (Using SortedList as container type)
     # brute_force(1) ...    0.0808s (1.00x)
     # brute_force(2) ...    0.0760s (0.94x)
@@ -48,7 +41,6 @@ def compare_list_implementations():
     # brute_force(5) ...    4.7413s (18.20x)
     # brute_force(6) ...   81.5600s (17.20x)
     # brute_force(7) ...  180.4473s (>2.21x) timed out!
-    timing_test(Container=SortedList)
 
     #   (Using SimpleSortedList as container type)
     # brute_force(1) ...    0.0778s (1.00x)
@@ -57,15 +49,15 @@ def compare_list_implementations():
     # brute_force(4) ...    0.2963s (3.46x)
     # brute_force(5) ...    8.7376s (29.49x)
     # brute_force(6) ...~2618.6997s (big x)
-    timing_test(Container=SimpleSortedList)
 
     # (Using SortedArray as container type)
     #   brute_force(1) ...    0.0767s (1.00x)
     #   brute_force(2) ...    0.0808s (1.05x)
     #   brute_force(3) ...    0.2031s (2.51x)
     #   brute_force(4) ...   22.3194s (109.89x)
-    timing_test(Container=SortedArray)
-    timing_test(Container=UsuallySortedArray)
+
+    for C in Containers:
+        timing_test(Container=C, t=t)
 
 def main():
     tk = Toolkit(rs)
@@ -78,6 +70,9 @@ def main():
     test_closest(tk, 150_000, k=10, n=brute)
     test_closest(tk, 82_000, k=10, n=brute)
 
+    for i in range(1,brute+1):
+        test_gap(tk, i)
+
     tk.displayInventory(n=0)
 
     tk2 = Toolkit(rs)
@@ -86,8 +81,7 @@ def main():
 
     #timing_test()
     #timing_test(Container=SimpleSortedList)
-    compare_list_implementations()
-
+    compare_list_implementations(15)
 
 if __name__ == '__main__':
     main()

@@ -1,7 +1,7 @@
 import bisect
 from collections.abc import MutableSequence
 
-class SortedList(MutableSequence):
+class SimpleSortedList(MutableSequence):
     """A sorted list operation using a builtin list and the bisect
     library operations.
 

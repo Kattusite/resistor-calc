@@ -76,9 +76,7 @@ class Toolkit:
     def __contains__(self, resistor):
         if resistor.count not in self.resistors:
             return False
-
         return resistor in self.resistors[resistor.count]
-
 
     def fuzzy_contains(self, resistor, tol=0.01):
         """Return true if self.resistors contains a resistor within a tol*ohms
@@ -113,9 +111,8 @@ class Toolkit:
             return
 
         # Insert this resistor in sorted order
-        # (WARNING: list inserts are slow, optimize later if needed)
         n = resistor.count
-        # self.resistors[0].append(resistor)
+        # self.resistors[0].add(resistor) # allows richer queries, but ~doubles runtime
         self.resistors[n].add(resistor)
 
     #########################################################################
@@ -173,6 +170,28 @@ class Toolkit:
 
         candidates.sort(key=lambda r : abs(ohms - r.ohms))
         return candidates[:k]
+
+    def biggestGap(self, k):
+        """Return the resistance of the resistor that is least-buildable
+        using k resistors of this toolkit.
+
+        More concretely, compute ratio = r[i] / r[i-1] for all i,
+        and return the value halfway between r[i], r[i-1] for the largest
+        such ratio"""
+        if k not in self.resistors:
+            raise ValueError
+        rs = self.resistors[k]
+        ratios = [ rs[i].ohms / rs[i-1].ohms for i in range(1, len(rs)) ]
+
+        topRatio, topIndex = -1, -1
+        for i, ratio in enumerate(ratios):
+            if ratio > topRatio:
+                topRatio, topIndex = ratio, i
+
+        above, below = rs[topIndex+1], rs[topIndex]
+        mid = Resistor((above.ohms + below.ohms) / 2)
+
+        return (below, mid, above)
 
     def displayInventory(self, n=3):
         print("====== Resistor inventory ======")

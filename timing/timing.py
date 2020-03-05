@@ -1,6 +1,9 @@
 import multiprocessing
 import time
 
+DEFAULT_TIMEOUT = 180
+DEFAULT_RANGE = range(1,15)
+
 class Timing:
 
     # https://stackoverflow.com/questions/14920384/stop-code-after-time-period
@@ -16,8 +19,12 @@ class Timing:
         return False
 
     @classmethod
-    def test(cls, f, *args, note="", ns=range(1,15), t=180, **kwargs):
+    def test(cls, f, *args, note="", ns=DEFAULT_RANGE, t=DEFAULT_TIMEOUT, **kwargs):
         """Call f with successively higher n until it times out"""
+
+        # Sometimes convenient to pass "None" to mean "pick your own default"
+        ns = ns if ns else DEFAULT_RANGE
+        t = t if t else DEFAULT_TIMEOUT
 
         print(f"====== Timing Test for {f.__name__} ======")
         if note:
