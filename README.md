@@ -39,13 +39,13 @@ resistances = [
   100_000, 220_000, 470_000, 1_000_000
 ]
 tk = Toolkit(resistances)
-```
 
 # find all combinations of 4 primitive resistors
 tk.brute_force(4) 
 
 r150_000 = tk.closest(150_000, n=4))[0]
 print(r150_000.schematic())
+```
 
 ## Code Structure
 
