@@ -17,11 +17,6 @@ need to look at the 10, 20, 100 ohm resistors.
 # TODO: Implement some fun dynamic programming-ish solution
 # or some heuristic to more efficiently get close to a target resistance
 
-# TODO: Add an extra level to self.resistors (e.g. 0) to track ALL resistors known,
-# to make searching easier ==> just search the ALL list, and then insert into both
-# the ALL list and the relevant i list.
-# UPDATE: Actually this may be a bad idea as it makes inserts really slow
-
 # TODO: An alternative problem formulation:
 #   In the common use case, we don't actually care about *all resistors possible*
 #   using a given toolkit. Most resistors are +/- 1% tol anyway, and most
@@ -38,8 +33,8 @@ need to look at the 10, 20, 100 ohm resistors.
 #   only "interesting" ones: (least resistors, least depth, least breadth)
 #
 #   This gives us a max. storage of:
-#     (12 color bases ** 4 digits) * 3 interesting ~= 60_000 < 2^16
-#   BUG: actually it's (10*10*10*12) * 3 == 36000
+#     wrong: (12 color bases ** 4 digits) * 3 interesting ~= 60_000 < 2^16
+#   : actually it's (10*10*10*12) * 3 == 36000
 #     Not that bad!
 #   We could theoretically just try to fill in the entire table, and ignore
 #   other implementations.
@@ -53,7 +48,6 @@ need to look at the 10, 20, 100 ohm resistors.
 #       'interesting' resistor
 #
 
-import bisect
 from collections import defaultdict
 
 from resistor import Resistor
@@ -96,9 +90,10 @@ class Toolkit:
         self.max_size = 1
 
     def __contains__(self, resistor):
-        if resistor.count not in self.resistors:
+        n = resistor.numPrimitives()
+        if n not in self.resistors:
             return False
-        return resistor in self.resistors[resistor.count]
+        return resistor in self.resistors[n]
 
     def fuzzy_contains(self, resistor, tol=0.01):
         """Return true if self.resistors contains a resistor within a tol*ohms
@@ -133,7 +128,7 @@ class Toolkit:
             return
 
         # Insert this resistor in sorted order
-        n = resistor.count
+        n = resistor.numPrimitives()
         # self.resistors[0].add(resistor) # allows richer queries, but ~doubles runtime
         self.resistors[n].add(resistor)
 

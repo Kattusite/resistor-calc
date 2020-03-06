@@ -75,20 +75,12 @@ class Buffer:
         """Draw a line connecting x0,y0 and x1,y1.
         The line first moves across and then up if needed.
         """
-        # TODO: Make it so that wires check what was already there, and add
-        # junctions if overwrites would occur.
-        # This also negates the need for the corner case.
-
         w, h = x1-x0, y1-y0
         for x in range(x0, x1+1):
             self.buf[y0][x] = "-"
 
         for y in range(y0+1, y1+1):
             self.buf[y][x1] = "-"
-
-        # Draw a corner if needed
-        if w > 0 and h > 0:
-            self.buf[y0][x1] = "-"
 
     def isLine(self, x,y):
         """Return true if the character at x,y is a line-drawing character"""
