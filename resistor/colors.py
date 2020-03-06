@@ -1,5 +1,6 @@
 # Experimental - not really well designed or organized yet
 # TODO: Scrap almost the whole file and reorganize from the ground up
+import math
 
 def esc(s):
     s = str(s)
@@ -42,6 +43,8 @@ asciiTemplate = (
     "   \-------------------/   "
 )
 
+# TODO: Add 2 rows (only for ascii2,ascii3)
+# TODO: Add 1 col  (for 6-wide)
 colorTemplate = [
     " ┌────────┐ ",
     "─┤ 1234 5 ├─",
@@ -56,6 +59,19 @@ colorTemplate = [
 BLOCK = "▌"
 
 COLOR_DEPTH = 8
+
+# TODO: Define color as own class:
+# class Color:
+#     def __init__(txt1, txt2, txt3, num, col2, col8, col24):
+        # decide on nice names:
+        # self.ascii1 = txt1
+        # self.ascii2 = txt2
+        # self.ascii3 = txt3
+        # self.num = num
+        # ...
+
+# TODO: And then, define Colors:
+# BLACK = Color("k", "Bk", "blk", "0", esc(15), esc8(255), esc24x(0xffffff))
 
 class Colors:
     BLACK  = esc24x(0x000000)
@@ -103,6 +119,31 @@ class Colors:
 
     ENDC = esc(0)
 
+    @classmethod
+    def fromDigit(cls, n):
+        if n < 0 or n > 9:
+            raise ValueError
+        return cls.colors[n]
+
+    @classmethod
+    def fromMagnitude(cls, m):
+        i = math.floor(math.log10(m))
+        if i == -2:
+            i = -1
+        elif i == -1:
+            i = -2
+        return cls.colors[i]
+
+    @classmethod
+    def fromTolerance(cls, tol):
+        tols = [
+            None, 1, 2, None, None,
+            0.5, 0.25, 0.10, 0.05, None,
+            5, 10
+        ]
+        i = tols.index(tol) if tol in tols else 0
+        return cls.colors[i]
+
     def colorprint(color, *argv):
         print(color, *argv, Colors.ENDC)
 
@@ -126,8 +167,10 @@ class Colors:
             raise ValueError("Wrong number of colors provided as inputs")
 
         tmp = colorTemplate[1]
+        if len(colors) == 4:
+            tmp = tmp.replace("4"," ")
+            tmp = tmp.replace("5","4")
         inds = [tmp.index(str(i)) for i in range(1,6)]
-
 
         for y, row in enumerate(colorTemplate):
             i = 0
@@ -141,6 +184,8 @@ class Colors:
                     print(c,end="")
                 Colors.end()
             print()
+
+
 
 def colortest():
     print("===== Available resistor bands =====")

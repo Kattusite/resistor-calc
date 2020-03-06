@@ -29,11 +29,21 @@ def test_schematic(r):
 
 def main():
 
-    print("====== Testing string formatting ======")
+    print("====== Testing resistance() formatting ======")
     print(Resistor(0))
     for e in range(0,30, 2):
         print(Resistor(5 * (10 ** e)))
 
+    print("\n====== Testing string formatting ======")
+    a = Resistor(100_000) * 2
+    print("__str__():     ", str(a))
+    print("__repr__():    ", repr(a))
+    print("resistance():  ", a.resistance())
+    print("schematic():   ", a.schematic())
+    print("algebraic():   ", a.algebraic())
+    print("primitive():   ", a.primitive())
+    print("summary():     ", a.summary())
+    #print(a.colorCode())
 
     print("\n====== Testing series resistors ======")
     test_series(100, 100)
@@ -93,7 +103,7 @@ def main():
         test_multiseries(10**e, 4)
 
 
-    print("\n====== Testing multiseries ======")
+    print("\n====== Testing multiparallel ======")
     for e in range(6):
         test_multiparallel(10**e, 4)
 

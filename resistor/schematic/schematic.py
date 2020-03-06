@@ -46,7 +46,7 @@ class Schematic:
         # base case
         s = ""
         if not resistor.history:
-            self.buf = Buffer.fromString(f"-({resistor.shortOhms()}Ω)-")
+            self.buf = Buffer.fromString(f"{resistor.primitive()}")
         elif op == PARALLEL:
             # Drawing something like:
             #  +--(200)--+

@@ -17,19 +17,41 @@ need to look at the 10, 20, 100 ohm resistors.
 # TODO: Implement some fun dynamic programming-ish solution
 # or some heuristic to more efficiently get close to a target resistance
 
-# TODO: Use resizing array so we don't have to suffer linear time insertion
-#   UPDATE: my bad. inserting into a sorted list will be linear no matter what.
-#   (although the resizing array makes the avg/best case better)
-#   Use a BST or similar if we really wanna get crazy
-# UPDATE: empirical tests show its actually way slower with the resizing array crap
-
-# TODO: Rewrite to use resizing array.
-#  (and do it such that if I wanna switch to a bst later it's straightforward)
-
 # TODO: Add an extra level to self.resistors (e.g. 0) to track ALL resistors known,
 # to make searching easier ==> just search the ALL list, and then insert into both
 # the ALL list and the relevant i list.
 # UPDATE: Actually this may be a bad idea as it makes inserts really slow
+
+# TODO: An alternative problem formulation:
+#   In the common use case, we don't actually care about *all resistors possible*
+#   using a given toolkit. Most resistors are +/- 1% tol anyway, and most
+#   are specified using just 3 significant digits (i.e. in color bands)
+#   So we can "uniquely" define resistors by their color codes.
+#   It is easy to enumerate all possible color codes (12 colors ^ 4 meaningful bands)
+#   So we can have a table mapping from 4 digit base-12 color codes
+#   to implementations.
+#
+#   e.g. 9043 => 904k Ohms
+#        4720 => 472  Ohms
+#
+#   For each of these bins, we don't need to track *every possible* implementation,
+#   only "interesting" ones: (least resistors, least depth, least breadth)
+#
+#   This gives us a max. storage of:
+#     (12 color bases ** 4 digits) * 3 interesting ~= 60_000 < 2^16
+#   BUG: actually it's (10*10*10*12) * 3 == 36000
+#     Not that bad!
+#   We could theoretically just try to fill in the entire table, and ignore
+#   other implementations.
+#   Worth thinking about this idea more:
+#     * Does it improve upon the brute force / pruned brute force approaches? How?
+#     * What are the different use cases for the two approaches?
+#     * Does either implementation allow a richer API?
+#     * How would end-users want to use Toolkit? What functions would they call?
+#     * Can it be used as a more informed pruning strategy, by rejecting new
+#       insertions when that resistor's bin is already occupied by a more
+#       'interesting' resistor
+#
 
 import bisect
 from collections import defaultdict
