@@ -11,12 +11,16 @@ TODO:
   * Track breadth as well as depth (max parallelism)
   * Standardize API + docs
     - Convert mentions of "self" to "this Resistor"
-  * Deal with name collisions on self.ohms -- is it a function or a public field?
-  * Add a field .R as a shorthand for .ohms
+  * Decide what to do when no tolerance/temp coeff is provided?
+    - Provide a reasonable default or set to None?
+    - If set to None, what should fns like minOhms() that require it do?
+    -- Exception? Also None?
+    - Also what about color code?
 """
 
 from units import Units
 from .schematic import Schematic
+from .colors import Colors
 from .const import SERIES, PARALLEL
 
 class Resistor():
@@ -41,29 +45,110 @@ class Resistor():
     #                         Constructor
     ########################################################################
 
-    def __init__(self, ohms, tolerance=1):
+    def __init__(self, ohms, tolerance=1, tempCoefficient=100):
         if ohms < 0:
             raise ValueError(f"ohms cannot be negative! ({ohms} < 0)")
         if tolerance < 0:
             raise ValueError(f"tolerance cannot be negative! ({tolerance} < 0)")
 
-        self.ohms = ohms
+        self.__ohms = ohms
         """The equivalent resistance of this Resistor, as a number of ohms."""
 
-        self.tolerance = tolerance
+        self.__tolerance = tolerance
         """The tolerance of this Resistor, in percentage points."""
 
-        self.depth = 1
+        self.__tempCoefficient = tempCoefficient
+        """The temperature coefficient of this Resistor, in ppm/deg C."""
+
+        self.__depth = 1
         """The number of primitive resistors on this Resistor's longest internal path."""
 
-        self.breadth = 1
+        self.__breadth = 1
         """The number of primitive resistors in this Resistor's widest parallel branch."""
 
         self.__count = 1
+        """The total number of primitive resistors in this Resistor's internal structure."""
+
+
 
         self.history = None # TODO: Rename to self.components, add a self.arrangment to store PARALLEL/SERIES
         self.__components  = None # this resistor's *direct* subcomponents
         self.__arrangement = None # how those subcomponents are arranged
+
+    ########################################################################
+    #                          Properties
+    ########################################################################
+
+    # TODO: Do this with properties as discussed here:
+    # https://stackoverflow.com/questions/10929004/how-to-restrict-setting-an-attribute-outside-of-constructor
+
+    @property
+    def ohms(self):
+        """The equivalent resistance of this Resistor, in ohms."""
+        return self.__ohms
+
+    @ohms.setter
+    def ohms(self, x):
+        raise TypeError("Cannot set fields of an immutable Resistor.")
+
+    @property
+    def R(self):
+        """The equivalent resistance of this Resistor, in ohms.
+
+        Alias for self.ohms
+        """
+        return self.ohms
+
+    @R.setter
+    def R(self, x):
+        raise TypeError("Cannot set fields of an immutable Resistor.")
+
+    @property
+    def depth(self):
+        """The number of resistors on this Resistor's longest internal path."""
+        return self.__depth
+
+    @depth.setter
+    def depth(self, x):
+        raise TypeError("Cannot set fields of an immutable Resistor.")
+
+    @property
+    def breadth(self):
+        """The number of resistors in this Resistor's widest internal parallel branch."""
+        return self.__breadth
+
+    @breadth.setter
+    def breadth(self, x):
+        raise TypeError("Cannot set fields of an immutable Resistor.")
+
+    @property
+    def tolerance(self):
+        """The tolerance of this resistor, in percentage points."""
+        return self.__tolerance
+
+    @tolerance.setter
+    def tolerance(self, x):
+        raise TypeError("Cannot set fields of an immutable Resistor.")
+
+    @property
+    def temperatureCoeffcient(self):
+        """The temperature coefficient of this resistor, in ppm/deg C."""
+        return self.__tempCoefficient
+
+    @temperatureCoeffcient.setter
+    def temperatureCoeffcient(self, x):
+        raise TypeError("Cannot set fields of an immutable Resistor.")
+
+    @property
+    def tcr(self):
+        """The temperature coefficient of this resistor, in ppm/deg C.
+
+        Alias for self.temperatureCoeffcient"""
+        return self.temperatureCoeffcient
+
+    @tcr.setter
+    def tcr(self, x):
+        raise TypeError("Cannot set fields of an immutable Resistor.")
 
     ########################################################################
     #                    Creators (Operations)
@@ -103,8 +188,8 @@ class Resistor():
     def series(self, other):
         """Return a new composite Resistor comprised of self and other in series."""
         r = self.__merge(other, SERIES)
-        r.ohms = self.ohms + other.ohms
-        r.depth = self.depth + other.depth
+        r.__ohms = self.ohms + other.ohms
+        r.__depth = self.depth + other.depth
         return r
 
     def __add__(self, other):
@@ -117,10 +202,10 @@ class Resistor():
     def parallel(self, other):
         """Return a new composite Resistor comprised of self and other in parallel."""
         r = self.__merge(other, PARALLEL)
-        r.ohms = 0
+        r.__ohms = 0
         if self.ohms != 0 and other.ohms != 0:
-            r.ohms = 1 / ((1/self.ohms) + (1/other.ohms))
-        r.depth = max(self.depth, other.depth)
+            r.__ohms = 1 / ((1/self.ohms) + (1/other.ohms))
+        r.__depth = max(self.depth, other.depth)
         return r
 
     def __or__(self, other):
@@ -230,7 +315,7 @@ class Resistor():
         return self.ohms != other.ohms
 
     def __hash__(self):
-        """Return a hash of self.
+        """Return a hash of this Resistor.
 
         Hashes will be equal if two resistors have the same internal structure.
         """
@@ -252,29 +337,12 @@ class Resistor():
     ########################################################################
 
     def isPrimitive(self):
-        """Return True iff self is a primitive resistor."""
+        """Return True iff this Resistor is a primitive resistor."""
         return self.__count == 1
 
     ########################################################################
     #                  Observers (Numerical)
     ########################################################################
-
-    ## Shadowed by the resistor's properties
-    # TODO: Change self.ohms to self.R, and add back in a self.ohms()
-    # def ohms(self):
-    #     """Return the number of ohms of equivalent resistance of this Resistor."""
-    #     return self.ohms
-    #
-    # def depth(self):
-    #     """Return the number of resistors on the longest internal path of this Resistor."""
-    #     return self.depth
-    #
-    # def breadth(self):
-    #     """Return the number of resistors in the widest parallel branch of this Resistor."""
-    #     return self.breadth
-    # def tolerance(self):
-    #     """Return the tolerance of this resistor in percentage points."""
-    #     return self.tolerance
 
     def minOhms(self):
         """Return the lowest tolerable number of ohms for this Resistor."""
@@ -459,22 +527,15 @@ class Resistor():
         as a text-based circuit diagram. """
         return str(Schematic(self, showEquivalent))
 
-    def colorCode(self, n=5):
+    def colorCode(self, ncolors=5, style="num", succinct=False, background=False):
         """Return a string representation of the the equivalent color code of
         this resistor."""
-        if n not in [4,5]:
-            raise ValueError
+        if ncolors not in [3,4,5,6]:
+            raise ValueError("Resistor color codes are only defined for 3, 4, 5, or 6 colors.")
 
-        s = f"{self.ohms:.3e}".replace(".","")
-        c1 = Colors.fromDigit(s[0])
-        c2 = Colors.fromDigit(s[1])
-        c3 = Colors.fromDigit(s[2])
-
-        f = int(s[:n-2])
-
-
-
-        return NotImplemented
+        colors = Colors.fromResistor(self, ncolors=5)
+        diagram = Colors.resistorDiagram(colors, style=style, succinct=succinct, background=background)
+        return diagram
 
     def __str__(self):
         return f"<{self.resistance()} ±{self.tolerance}%>"
@@ -500,16 +561,6 @@ class Resistor():
     ########################################################################
     #                        Mutators
     ########################################################################
-
-    # TODO: Do this with properties as discussed here:
-    # https://stackoverflow.com/questions/10929004/how-to-restrict-setting-an-attribute-outside-of-constructor
-    # This is not the correct way to ensure immutability
-    # def __setattr__(self, attr, value):
-    #     """Not implemented: Resistors are immutable"""
-    #     return NotImplemented
-
-    # TODO: Define a property ohms and a property R that are read-only
-    # likewise define .tolerance, .depth, .breadth
 
     ########################################################################
     #                     Other methods

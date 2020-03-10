@@ -1,4 +1,5 @@
 from .resistor import Resistor
+from .colors import Colors
 
 width = 15
 
@@ -26,6 +27,14 @@ def test_multiparallel(ohms, k):
 
 def test_schematic(r):
     print(r.schematic(showEquivalent=True),"\n")
+
+def test_colorcode(r):
+    for style in ["txt1", "txt2", "txt3", "num", "col4", "col8", "col24"]:
+        print(f"--- style {style} ---")
+        for succinct in [True, False]:
+            print(r.colorCode(style=style, succinct=succinct))
+        print()
+    print("------------------------------\n")
 
 def main():
 
@@ -106,6 +115,13 @@ def main():
     print("\n====== Testing multiparallel ======")
     for e in range(6):
         test_multiparallel(10**e, 4)
+
+    print("\n====== Testing color codes ======")
+    a = Resistor(35700, tolerance=0.10)
+    test_colorcode(a)
+
+    b = Resistor(470_000)
+    test_colorcode(b)
 
 if __name__ == '__main__':
     main()
